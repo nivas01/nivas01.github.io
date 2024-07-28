@@ -44,6 +44,7 @@
   .attr("transform","translate(" + margin.left + "," + margin.top + ")")
   .attr("class", "svg");
 
+
   // Import the CSV data
   d3.csv("https://raw.githubusercontent.com/nivas01/nivas01.github.io/main/Superstore-Global_Dataset.csv", function( data) {
 
@@ -71,9 +72,7 @@
     .attr("class", "x axis")
 
     .call(d3.axisBottom(x)
-    //.ticks(d3.timeMonth)
     .tickSize(0, 0)
-    //.tickFormat(d3.timeFormat("%B"))
     .tickSizeInner(0)
     .tickPadding(10));
 
@@ -130,6 +129,9 @@
     .on("mouseout", function(d) {
       tip.style("opacity", 0)
     })
+    .on("click", function(d) {
+      window.location.href = "State.html?country=" + d.key;
+    });
 
   })
 

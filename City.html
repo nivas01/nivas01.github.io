@@ -15,6 +15,11 @@
 </body>
 <script>
 
+  const params = new URLSearchParams(window.location.search);
+  var state = "California";
+  if(params.has("state")){
+    state = params.get("state");
+  }
 
   // Set the margins
   var margin = {top: 60, right: 100, bottom: 100, left: 80},
@@ -54,7 +59,6 @@
   d3.csv("https://raw.githubusercontent.com/nivas01/nivas01.github.io/main/Superstore-Global_Dataset.csv", function( data) {
 
 
-    var state="California";
     filteredData = data.filter(function(d) { return d.State === state; })
 
     var nest = d3.nest()

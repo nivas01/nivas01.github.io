@@ -16,6 +16,11 @@
 </body>
 <script>
 
+  const params = new URLSearchParams(window.location.search);
+  var country = "United States";
+  if(params.has("country")){
+    country = params.get("country");
+  }
 
   // Set the margins
   var margin = {top: 60, right: 100, bottom: 100, left: 80},
@@ -46,8 +51,6 @@
   // Import the CSV data
   d3.csv("https://raw.githubusercontent.com/nivas01/nivas01.github.io/main/Superstore-Global_Dataset.csv", function( data) {
 
-
-    var country="United States";
     filteredData = data.filter(function(d) { return d.Country === country; })
 
     var nest = d3.nest()
@@ -132,6 +135,9 @@
     .on("mouseout", function(d) {
       tip.style("opacity", 0)
     })
+    .on("click", function(d) {
+      window.location.href = "City.html?state=" + d.key;
+    });
 
   })
 
