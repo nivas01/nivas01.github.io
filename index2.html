@@ -17,9 +17,9 @@
 
 
   // Set the margins
-  var margin = {top: 60, right: 100, bottom: 20, left: 80},
-      width = 850 - margin.left - margin.right,
-      height = 370 - margin.top - margin.bottom;
+  var margin = {top: 60, right: 100, bottom: 100, left: 80},
+      width = 1600 - margin.left - margin.right,
+      height = 1600 - margin.top - margin.bottom;
 
   // Parse the month variable
   var parseMonth = d3.timeParse("%b");
@@ -28,6 +28,7 @@
   // Set the ranges
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.1)
   var y = d3.scaleLinear().range([height, 0]);
+
 
 
   // Create the svg canvas in the "graph" div
@@ -55,16 +56,18 @@
       return d3.sum(leaves, function(d) {return (d.Sales)});
     })
     .entries(data)
+    .sort(function(a, b){ return d3.ascending(a.value, b.value); })
 
     console.log(nest)
     // Scale the range of the data
     x.domain(nest.map(function(d) { return d.key; }));
-    y.domain([0, d3.max(nest, function(d) { return d.value; })]);
+    y.domain([1, d3.max(nest, function(d) { return d.value; })]);
 
     // Set up the x axis
     var xaxis = svg.append("g")
     .attr("transform", "translate(0," + height + ")")
     .attr("class", "x axis")
+
     .call(d3.axisBottom(x)
     //.ticks(d3.timeMonth)
     .tickSize(0, 0)
@@ -104,6 +107,12 @@
     .attr("width", x.bandwidth())
     .attr("height", function(d) { return height - y(d.value); });
 
+
+  svg.selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-65)" )
 
 
   })
