@@ -12,7 +12,13 @@
 </head>
 
 <body>
-<div id="graph"></div>
+<div id="nav">
+  <button onclick="history.back()">Back</button>
+  <button onclick="window.location.href='index.html'">Home</button>
+</div>
+<div id="regional"></div>
+<div id="monthly"></div>
+
 </body>
 <script>
 
@@ -25,7 +31,7 @@
   // Set the margins
   var margin = {top: 60, right: 100, bottom: 100, left: 80},
       width = 1600 - margin.left - margin.right,
-      height = 1600 - margin.top - margin.bottom;
+      height = 600 - margin.top - margin.bottom;
 
   // Parse the month variable
   var parseMonth = d3.timeParse("%b");
@@ -38,7 +44,17 @@
 
 
   // Create the svg canvas in the "graph" div
-  var svg = d3.select("#graph")
+  var svg = d3.select("#regional")
+  .append("svg")
+  .style("width", width + margin.left + margin.right + "px")
+  .style("height", height + margin.top + margin.bottom + "px")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform","translate(" + margin.left + "," + margin.top + ")")
+  .attr("class", "svg");
+
+  var svg_monthly = d3.select("#monthly")
   .append("svg")
   .style("width", width + margin.left + margin.right + "px")
   .style("height", height + margin.top + margin.bottom + "px")
@@ -138,6 +154,90 @@
     .on("click", function(d) {
       window.location.href = "City.html?state=" + d.key;
     });
+
+    // Start of Monthly Sales Chart
+
+    var nest_monthly = d3.nest()
+    .key(function(d){
+      return( new Date(d.OrderDate).toLocaleString('default', { month: 'long' }));
+    })
+    .sortKeys(d3.ascending)
+    .rollup(function(leaves){
+      return d3.sum(leaves, function(d) {return (d.Profit)});
+    })
+    .entries(data)
+    .sort(function(a, b){ return d3.ascending(a.value, b.value); })
+    console.log(nest_monthly)
+
+    var x_monthly = d3.scaleBand().rangeRound([0, width]).padding(0.1)
+    var y_monthly = d3.scaleLinear().range([height, 0]);
+    // Scale the range of the data
+    x_monthly.domain(nest_monthly.map(function(d) { return d.key; }));
+    y_monthly.domain([1, d3.max(nest_monthly, function(d) { return d.value; })]);
+
+    // Set up the x axis
+    var xaxis_monthly = svg_monthly.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "x axis")
+
+    .call(d3.axisBottom(x_monthly)
+    .tickSize(0, 0)
+    .tickSizeInner(0)
+    .tickPadding(10));
+
+    // Add the Y Axis
+    var yaxis_monthly = svg_monthly.append("g")
+    .attr("class", "y axis")
+    .call(d3.axisLeft(y_monthly)
+    .ticks(5)
+    .tickSizeInner(0)
+    .tickPadding(6)
+    .tickSize(0, 0));
+
+    // yaxis.select(".domain").style("display","none")
+
+    // Add a label to the y axis
+    svg_monthly.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - 60)
+    .attr("x", 0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Annual Sales")
+    .attr("class", "y axis label");
+
+    // Draw the bars
+    svg_monthly.selectAll(".rect")
+    .data(nest_monthly)
+    .enter()
+    .append("rect")
+    .attr("class", "monthly")
+    .attr("x", function(d) { return x_monthly(d.key); })
+    .attr("y", function(d) { return y_monthly(d.value); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y_monthly(d.value); });
+
+
+    svg_monthly.selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-65)" )
+
+//  Tooltip
+    var tip_monthly = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0)
+// Add events to circles
+    d3.selectAll(".monthly").on("mouseover", function(d) {
+      tip.style("opacity", 1)
+      .html(d.key + "<br/>" + "<br/> Total Profit: " + d.value)
+      .style("left", (d3.event.pageX-25) + "px")
+      .style("top", (d3.event.pageY-75) + "px")
+    })
+    .on("mouseout", function(d) {
+      tip.style("opacity", 0)
+    })
 
   })
 
