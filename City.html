@@ -1,0 +1,123 @@
+
+<!-- Code from d3-graph-gallery.com -->
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<!--import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";-->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<body>
+<div id="graph"></div>
+</body>
+<script>
+
+
+  // Set the margins
+  var margin = {top: 60, right: 100, bottom: 100, left: 80},
+      width = 1600 - margin.left - margin.right,
+      height = 1600 - margin.top - margin.bottom;
+
+  // Parse the month variable
+  var parseMonth = d3.timeParse("%b");
+  var formatMonth = d3.timeFormat("%b");
+
+  // Set the ranges
+  var x = d3.scaleBand().rangeRound([0, width]).padding(0.1)
+  var y = d3.scaleLinear().range([height, 0]);
+
+
+
+  // Create the svg canvas in the "graph" div
+  var svg = d3.select("#graph")
+  .append("svg")
+  .style("width", width + margin.left + margin.right + "px")
+  .style("height", height + margin.top + margin.bottom + "px")
+  .attr("width", width + margin.left + margin.right)
+  .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+  .attr("transform","translate(" + margin.left + "," + margin.top + ")")
+  .attr("class", "svg");
+
+  // Import the CSV data
+  d3.csv("https://raw.githubusercontent.com/nivas01/nivas01.github.io/main/Superstore-Global_Dataset.csv", function( data) {
+
+
+    var state="California";
+    filteredData = data.filter(function(d) { return d.State === state; })
+
+    var nest = d3.nest()
+    .key(function(d){
+      return d.City;
+    })
+    .sortKeys(d3.ascending)
+    .rollup(function(leaves){
+      return d3.sum(leaves, function(d) {return (d.Sales)});
+    })
+    .entries(filteredData)
+    .sort(function(a, b){ return d3.ascending(a.value, b.value); })
+
+
+    console.log(nest)
+    // Scale the range of the data
+    x.domain(nest.map(function(d) { return d.key; }));
+    y.domain([1, d3.max(nest, function(d) { return d.value; })]);
+
+    // Set up the x axis
+    var xaxis = svg.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .attr("class", "x axis")
+
+    .call(d3.axisBottom(x)
+    //.ticks(d3.timeMonth)
+    .tickSize(0, 0)
+    //.tickFormat(d3.timeFormat("%B"))
+    .tickSizeInner(0)
+    .tickPadding(10));
+
+    // Add the Y Axis
+    var yaxis = svg.append("g")
+    .attr("class", "y axis")
+    .call(d3.axisLeft(y)
+    .ticks(5)
+    .tickSizeInner(0)
+    .tickPadding(6)
+    .tickSize(0, 0));
+
+    // yaxis.select(".domain").style("display","none")
+
+    // Add a label to the y axis
+    svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - 60)
+    .attr("x", 0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Annual Sales")
+    .attr("class", "y axis label");
+
+    // Draw the bars
+    svg.selectAll(".rect")
+    .data(nest)
+    .enter()
+    .append("rect")
+    .attr("class", "bar")
+    .attr("x", function(d) { return x(d.key); })
+    .attr("y", function(d) { return y(d.value); })
+    .attr("width", x.bandwidth())
+    .attr("height", function(d) { return height - y(d.value); });
+
+
+  svg.selectAll("text")
+    .style("text-anchor", "end")
+    .attr("dx", "-.8em")
+    .attr("dy", ".15em")
+    .attr("transform", "rotate(-65)" )
+
+
+  })
+
+</script>
