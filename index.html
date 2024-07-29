@@ -6,6 +6,7 @@
 <!-- Load d3.js -->
 <!--import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";-->
 <script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
 
 
 <head>
@@ -13,6 +14,10 @@
 
 </head>
 <body>
+<div id="nav">
+  <button onclick="history.back()" disabled style="background-color: #bfbfbf;filter: grayscale(100%)">Back</button>
+  <button onclick="window.location.href='index.html'" disabled style="background-color: #bfbfbf;filter: grayscale(100%)">Home</button>
+</div>
 <div id="regional"></div>
 <div id="monthly"></div>
 </body>
@@ -31,6 +36,8 @@
   // Set the ranges
   var x = d3.scaleBand().rangeRound([0, width]).padding(0.1)
   var y = d3.scaleLinear().range([height, 0]);
+
+
 
   // Create the svg canvas in the "graph" div
   var svg = d3.select("#regional")
@@ -73,6 +80,11 @@
     x.domain(nest.map(function(d) { return d.key; }));
     y.domain([1, d3.max(nest, function(d) { return d.value; })]);
 
+    console.log(nest.map(function(d) { return d.key; }))
+
+    var myColor = d3.scaleOrdinal().domain(nest.map(function(d) { return d.key; })).range(d3.schemeSet3);
+    //var myColor = d3.scaleOrdinal(d3.schemeCategory10);
+
     // Set up the x axis
     var xaxis = svg.append("g")
     .attr("transform", "translate(0," + height + ")")
@@ -110,10 +122,17 @@
     .enter()
     .append("rect")
     .attr("class", "regional")
+    .transition()
+    .duration(300)
     .attr("x", function(d) { return x(d.key); })
     .attr("y", function(d) { return y(d.value); })
-    .attr("width", x.bandwidth())
-    .attr("height", function(d) { return height - y(d.value); });
+ //   .delay(function(d,i){console.log(i) ; return(i*20)})
+    .attr("width",  Math.min(x.bandwidth(), 100))
+    .attr("height", function(d) { return height - y(d.value); })
+
+
+
+    // .attr("fill", function(d){return myColor(d.key) });
 
 
   svg.selectAll("text")
@@ -129,7 +148,7 @@
 // Add events to circles
     d3.selectAll(".regional").on("mouseover", function(d) {
       tip.style("opacity", 1)
-      .html(d.key + "<br/>" + "<br/> Total Sales: " + d.value)
+      .html(d.key + "<br/>" + "<br/> Total Sales: $" + d3.format(".2f")(d.value))
       .style("left", (d3.event.pageX-25) + "px")
       .style("top", (d3.event.pageY-75) + "px")
     })
@@ -165,7 +184,6 @@
     var xaxis_monthly = svg_monthly.append("g")
     .attr("transform", "translate(0," + height + ")")
     .attr("class", "x axis")
-
     .call(d3.axisBottom(x_monthly)
     .tickSize(0, 0)
     .tickSizeInner(0)
@@ -179,8 +197,6 @@
     .tickSizeInner(0)
     .tickPadding(6)
     .tickSize(0, 0));
-
-    // yaxis.select(".domain").style("display","none")
 
     // Add a label to the y axis
     svg_monthly.append("text")
@@ -198,9 +214,12 @@
     .enter()
     .append("rect")
     .attr("class", "monthly")
+    .transition()
+    .duration(300)
     .attr("x", function(d) { return x_monthly(d.key); })
     .attr("y", function(d) { return y_monthly(d.value); })
-    .attr("width", x.bandwidth())
+    .delay(function(d,i){console.log(i) ; return(i*20)})
+    .attr("width",  Math.min(x_monthly.bandwidth(), 100))
     .attr("height", function(d) { return height - y_monthly(d.value); });
 
 
@@ -208,7 +227,7 @@
     .style("text-anchor", "end")
     .attr("dx", "-.8em")
     .attr("dy", ".15em")
-    .attr("transform", "rotate(-65)" )
+   // .attr("transform", "rotate(-65)" )
 
 //  Tooltip
     var tip_monthly = d3.select("body").append("div")
@@ -217,7 +236,7 @@
 // Add events to circles
     d3.selectAll(".monthly").on("mouseover", function(d) {
       tip.style("opacity", 1)
-      .html(d.key + "<br/>" + "<br/> Total Profit: " + d.value)
+      .html(d.key + "<br/>" + "<br/> Total Profit: $" + d3.format(".2f")(d.value))
       .style("left", (d3.event.pageX-25) + "px")
       .style("top", (d3.event.pageY-75) + "px")
     })

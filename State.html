@@ -124,10 +124,13 @@
     .data(nest)
     .enter()
     .append("rect")
-    .attr("class", "bar")
+    .attr("class", "regional")
+    .transition()
+    .duration(300)
     .attr("x", function(d) { return x(d.key); })
     .attr("y", function(d) { return y(d.value); })
-    .attr("width", x.bandwidth())
+    .delay(function(d,i){console.log(i) ; return(i*20)})
+    .attr("width",  Math.min(x.bandwidth(), 100))
     .attr("height", function(d) { return height - y(d.value); });
 
 
@@ -144,7 +147,7 @@
 // Add events to circles
     d3.selectAll("rect").on("mouseover", function(d) {
       tip.style("opacity", 1)
-      .html(d.key + "<br/>" + "<br/> Total Sales: " + d.value)
+      .html(d.key + "<br/>" + "<br/> Total Sales: $" + d3.format(".2f")(d.value))
       .style("left", (d3.event.pageX-25) + "px")
       .style("top", (d3.event.pageY-75) + "px")
     })
@@ -212,9 +215,12 @@
     .enter()
     .append("rect")
     .attr("class", "monthly")
+    .transition()
+    .duration(300)
     .attr("x", function(d) { return x_monthly(d.key); })
     .attr("y", function(d) { return y_monthly(d.value); })
-    .attr("width", x.bandwidth())
+    .delay(function(d,i){console.log(i) ; return(i*20)})
+    .attr("width",  Math.min(x_monthly.bandwidth(), 100))
     .attr("height", function(d) { return height - y_monthly(d.value); });
 
 
@@ -231,7 +237,7 @@
 // Add events to circles
     d3.selectAll(".monthly").on("mouseover", function(d) {
       tip.style("opacity", 1)
-      .html(d.key + "<br/>" + "<br/> Total Profit: " + d.value)
+      .html(d.key + "<br/>" + "<br/> Total Profit:  $" + d3.format(".2f")(d.value))
       .style("left", (d3.event.pageX-25) + "px")
       .style("top", (d3.event.pageY-75) + "px")
     })
