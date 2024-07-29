@@ -158,6 +158,21 @@
       window.location.href = "City.html?state=" + d.key;
     });
 
+    svg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "30px")
+    .style("text-decoration", "underline")
+    .text("Total Sales By State in " + country);
+    svg.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2)+30)
+    .attr("text-anchor", "middle")
+    .style("font-size", "16px")
+    .style("text-decoration", "underline")
+    .text("Click on a bar to view sales by Cities");
+
     // Start of Monthly Sales Chart
 
     var nest_monthly = d3.nest()
@@ -244,6 +259,14 @@
     .on("mouseout", function(d) {
       tip.style("opacity", 0)
     })
+
+    svg_monthly.append("text")
+    .attr("x", (width / 2))
+    .attr("y", 0 - (margin.top / 2))
+    .attr("text-anchor", "middle")
+    .style("font-size", "30px")
+    .style("text-decoration", "underline")
+    .text("Total Profit By Month in " + country);
 
   })
 
